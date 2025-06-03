@@ -12,6 +12,14 @@ def input():
     rows = ['Row 1', 'Row 2', 'Row 3']
     return render_template('input.html', rows=rows)
 
+@app.route('/translate', methods=['POST'])
+def translate():
+    if request.method == 'POST':
+        input_text = request.form.get('input_text', '')
+        lines = input_text.splitlines()
+        print("Lines to translate:", lines, flush=True)  # Print to console
+        return render_template('table.html', rows=lines)
+
 @app.route('/table', methods=['GET', 'POST'])
 def table():
     if request.method == 'POST':
