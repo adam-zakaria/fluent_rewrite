@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Table View</h1>
+<table border="1">
+    <tr>
+        <th>Row</th>
+    </tr>
+    {% for row in rows %}
+    <tr>
+        <td>{{ row }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %} 
