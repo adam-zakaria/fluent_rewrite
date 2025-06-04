@@ -26,53 +26,53 @@ load_dotenv(os.path.join(os.path.dirname(__file__), '../.env'))
 openai_api_key = os.environ.get("OPENAI_API_KEY")
 client = openai.OpenAI(api_key=openai_api_key)
 
+def translate_text(input_text):
+    english_phrases = input_text.splitlines()
+    languages = ['spanish', 'german', 'french', 'japanese']
+    user_message = {
+        'phrases': english_phrases,
+        'languages': languages
+    }
+
+    output = client.chat.completions.create(
+        model="gpt-4o-2024-11-20",
+        messages=[
+            {"role": "system", "content": open(os.path.join(os.path.dirname(__file__), 'system_prompts/translate.txt'), 'r').read()},
+            {"role": "user", "content": json.dumps(user_message)},
+        ],
+    )
+    translations = json.loads(output.choices[0].message.content)
+
+    # Make the first column the english phrases
+    for i in range(len(translations)):
+        translations[i].insert(0, english_phrases[i])
+    # Add english as the header of the first column
+    languages.insert(0, 'english')
+    
+    return translations, languages
+
 @app.route('/')
 def input():
     # Get saved input from session, or empty string if none exists
     saved_input = session.get('input_text', '')
     return render_template('input.html', saved_input=saved_input)
 
-@app.route('/translate', methods=['POST'])
-def translate():
-    if request.method == 'POST':
-        input_text = request.form.get('input_text', '')
-        # Save to session
-        session['input_text'] = input_text
-        
-        english_phrases = input_text.splitlines()
-        languages = ['spanish', 'german', 'french', 'japanese']
-        user_message = {
-            'phrases': english_phrases,
-            'languages': languages
-        }
-        print("Lines to translate:", english_phrases, flush=True)  # Print to console
-
-        output = client.chat.completions.create(
-            model="gpt-4o-2024-11-20",
-            messages=[
-                {"role": "system", "content": open(os.path.join(os.path.dirname(__file__), 'system_prompts/translate.txt'), 'r').read()},
-                {"role": "user", "content": json.dumps(user_message)},
-            ],
-        )
-        translations = json.loads(output.choices[0].message.content)
-        print("Output:", translations, flush=True)  # Print to console
-
-        # Make the first column the english phrases
-        for i in range(len(translations)):
-            translations[i].insert(0, english_phrases[i])
-        # Add english as the header of the first column
-        languages.insert(0, 'english')
-
-        return render_template('table.html', languages=languages, rows=translations)
-
 @app.route('/table', methods=['GET', 'POST'])
 def table():
     if request.method == 'POST':
+        # If POST, process the new translation
         input_text = request.form.get('input_text', '')
-        rows = input_text.splitlines()
+        translations, languages = translate_text(input_text)
+        # Update session with new data
+        session['translations'] = translations
+        session['languages'] = languages
+        session['input_text'] = input_text
     else:
-        rows = ['Row 1', 'Row 2', 'Row 3']
-    return render_template('table.html', rows=rows)
+        # If GET, load from session
+        translations = session.get('translations', [])
+        languages = session.get('languages', ['english'])
+    
+    return render_template('table.html', languages=languages, rows=translations)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=3000)

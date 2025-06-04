@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Table View</h1>
+<h1>Translations</h1>
+{% if not rows %}
+<p>No translations yet. <a href="/">Translate something!</a></p>
+{% else %}
 <table border="1">
     <tr>
-        {% for language in languages %}
-        <th>{{ language }}</th>
+        {% for lang in languages %}
+        <th>{{ lang }}</th>
         {% endfor %}
     </tr>
     {% for row in rows %}
@@ -16,4 +19,5 @@
     </tr>
     {% endfor %}
 </table>
+{% endif %}
 {% endblock %} 
