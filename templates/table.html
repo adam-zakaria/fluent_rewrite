@@ -4,11 +4,15 @@
 <h1>Table View</h1>
 <table border="1">
     <tr>
-        <th>Row</th>
+        {% for language in languages %}
+        <th>{{ language }}</th>
+        {% endfor %}
     </tr>
     {% for row in rows %}
     <tr>
-        <td>{{ row }}</td>
+        {% for cell in row %}
+        <td>{{ cell }}</td>
+        {% endfor %}
     </tr>
     {% endfor %}
 </table>

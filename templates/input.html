@@ -3,8 +3,7 @@
 {% block content %}
 <h1>Input Form</h1>
 <form action="/translate" method="post">
-    <textarea name="input_text" rows="4" cols="50">hello
-great</textarea>
+    <textarea name="input_text" rows="4" cols="50">{{ saved_input }}</textarea>
     <br>
     <input type="submit" value="Submit">
 </form>
