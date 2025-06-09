@@ -1,6 +1,29 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+    .cell-content {
+        display: flex;
+        align-items: center;
+        padding: 4px;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .cell-content:hover {
+        color: #2563eb;
+    }
+    .cell-content::after {
+        content: '🔊';
+        font-size: 0.8em;
+        opacity: 0;
+        margin-left: 4px;
+        transition: opacity 0.2s;
+    }
+    .cell-content:hover::after {
+        opacity: 0.7;
+    }
+</style>
+
 <h1>Translations</h1>
 {% if not rows %}
 <p>No translations yet. <a href="/">Translate something!</a></p>
@@ -14,7 +37,11 @@
     {% for row in rows %}
     <tr>
         {% for cell in row %}
-        <td>{{ cell }}</td>
+        <td>
+            <div class="cell-content">
+                {{ cell.translation }}
+            </div>
+        </td>
         {% endfor %}
     </tr>
     {% endfor %}

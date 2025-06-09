@@ -74,7 +74,6 @@ def translate_input_phrases(input_text):
     # Add english as the header of the first column
     languages.insert(0, 'english')
         
-    breakpoint()
     return translations_table, languages
 """
 Multiple calls seems to take a long time.
