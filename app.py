@@ -28,7 +28,7 @@ client = openai.OpenAI(api_key=openai_api_key)
 
 def translate_input_phrases(input_text):
     english_phrases = input_text.splitlines()
-    languages = ['spanish', 'german', 'french', 'japanese']
+    languages = ['spanish', 'french', 'japanese']
     translations_table = []
 
     # (0) For each english phrase
@@ -52,18 +52,29 @@ def translate_input_phrases(input_text):
             translation = output.choices[0].message.content
             print(translation)
             # (3) Add the translation to the row of translations
-            row_of_translations.append(translation)
-        print(row_of_translations)
+            #row_of_translations.append(translation)
+            row_of_translations.append({
+                'language': language,
+                'translation': translation,
+                'audio_path': f'path/to/audio/.mp3',
+                'video_path': f'path/to/audio/.mp4',
+            })
+        #print(row_of_translations)
         # (4) Add the row of translations to the translations_table
         translations_table.append(row_of_translations)
 
 
     # Make the first column the english phrases
     for i in range(len(translations_table)):
-        translations_table[i].insert(0, english_phrases[i])
+        translations_table[i].insert(0, { # Insert phrase in first position of translation row
+            'language': 'english',
+            'translation': english_phrases[i] 
+        })
+
     # Add english as the header of the first column
     languages.insert(0, 'english')
         
+    breakpoint()
     return translations_table, languages
 """
 Multiple calls seems to take a long time.
