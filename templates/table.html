@@ -1,28 +1,98 @@
 {% extends "base.html" %}
 
+
 {% block content %}
+
+<script>
+
+    function playAudioFromCache(key) {
+      const request = indexedDB.open(dbName);
+      request.onsuccess = (event) => {
+        const db = event.target.result;
+        const transaction = db.transaction([storeName], "readonly");
+        const store = transaction.objectStore(storeName);
+        const getRequest = store.get(key);
+
+        getRequest.onsuccess = () => {
+          if (getRequest.result) {
+            const audioUrl = URL.createObjectURL(getRequest.result);
+            new Audio(audioUrl).play();
+          } else {
+            // If not in cache, fetch from server
+            const [text, language] = key.split('_');
+            fetch(`${API_HOST}/text-to-speech`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ text, language })
+            })
+              .then(response => response.blob())
+              .then(audioBlob => {
+                saveAudioToIndexedDB(key, audioBlob);
+                const audioUrl = URL.createObjectURL(audioBlob);
+                new Audio(audioUrl).play();
+              });
+          }
+        };
+      };
+    }
+
+    // Helper functions for IndexedDB operations
+    function saveAudioToIndexedDB(key, audioBlob) {
+      const request = indexedDB.open(dbName);
+      request.onsuccess = (event) => {
+        const db = event.target.result;
+        const transaction = db.transaction([storeName], "readwrite");
+        const store = transaction.objectStore(storeName);
+        store.put(audioBlob, key);
+      };
+    }
+    
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
     .cell-content {
         display: flex;
+        justify-content: space-between;
         align-items: center;
+        gap: 8px;
         padding: 4px;
+    }
+    .play-icon {
+        color: #666;
         cursor: pointer;
         transition: color 0.2s;
     }
-    .cell-content:hover {
-        color: #2563eb;
-    }
-    .cell-content::after {
-        content: '🔊';
-        font-size: 0.8em;
-        opacity: 0;
-        margin-left: 4px;
-        transition: opacity 0.2s;
-    }
-    .cell-content:hover::after {
-        opacity: 0.7;
+    .play-icon:hover {
+        color: #333;
     }
 </style>
+
+<h1>Test text to speech on load</h1>
+<!-- POST to /text-to-speech on load for testing-->
+<button onclick="playAudioFromCache('hello')">Play English Hello</button>
+
+<script>
+    // Direct POST to /text-to-speech endpoint on load
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('/text-to-speech', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text: 'hello',
+                language: 'english'
+            })
+        })
+        .then(response => response.blob())
+        .then(audioBlob => {
+            saveAudioToIndexedDB('hello', audioBlob);
+            console.log('audioBlob created');
+            //const audioUrl = URL.createObjectURL(audioBlob);
+            //new Audio(audioUrl).play();
+        });
+    });
+</script>
 
 <h1>Translations</h1>
 {% if not rows %}
@@ -39,7 +109,8 @@
         {% for cell in row %}
         <td>
             <div class="cell-content">
-                {{ cell.translation }}
+                <span>{{ cell.phrase }}</span>
+                <i class="fas fa-play play-icon"></i>
             </div>
         </td>
         {% endfor %}
