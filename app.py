@@ -44,13 +44,20 @@ def table():
     
     return render_template('table.html', languages=languages, rows=translations)
 
-@app.route('/text-to-speech', methods=['POST'])
+
+@app.route('/audio', methods=['GET'])
+def audio():
+    return send_file(logic.create_audio_zip(), mimetype='application/zip')
+
+"""
+@app.route('/text_to_speech', methods=['POST'])
 def tts():
     text = 'hello'
     language = 'english'
     file_path, file_name = logic.text_to_speech(text, language)
-    print(file_path, file_name)
+    print(f'file_path: {file_path}, file_name: {file_name}')
     return send_file(file_path, mimetype='audio/mpeg', as_attachment=True, download_name=file_name)
+"""
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=3000)

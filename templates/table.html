@@ -3,7 +3,43 @@
 
 {% block content %}
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
+    const API_HOST = 'http://localhost:3000';
+
+    // Add IndexedDB setup
+    const dbName = "audioCache";
+    const dbVersion = 1;
+    const storeName = "audioFiles";
+
+    // Open/create the database
+    const dbRequest = indexedDB.open(dbName, dbVersion);
+
+    dbRequest.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains(storeName)) {
+        db.createObjectStore(storeName);
+      }
+    };
+
+    // Fetch audio zip from server
+    fetch(`${API_HOST}/audio`)
+      .then(response => response.blob())
+      .then(async zipBlob => {
+        //debugger;
+        const zip = await JSZip.loadAsync(zipBlob);
+        console.log('Zip loaded, files:', Object.keys(zip.files));
+        
+        // Process each file in the zip
+        for (const [filename, file] of Object.entries(zip.files)) {
+          const audioBlob = await file.async('blob');
+          // Use filename without .mp3 as the key
+          const key = filename.replace('.mp3', '');
+          await saveAudioToIndexedDB(key, audioBlob);
+          console.log('Saved audio:', key);
+        }
+      })
+      .catch(error => console.error('Error loading audio:', error));
 
     function playAudioFromCache(key) {
       const request = indexedDB.open(dbName);
@@ -20,13 +56,14 @@
           } else {
             // If not in cache, fetch from server
             const [text, language] = key.split('_');
-            fetch(`${API_HOST}/text-to-speech`, {
+            fetch(`${API_HOST}/text_to_speech`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ text, language })
             })
               .then(response => response.blob())
               .then(audioBlob => {
+                console.log('Audio blob created:', key);
                 saveAudioToIndexedDB(key, audioBlob);
                 const audioUrl = URL.createObjectURL(audioBlob);
                 new Audio(audioUrl).play();
@@ -38,61 +75,22 @@
 
     // Helper functions for IndexedDB operations
     function saveAudioToIndexedDB(key, audioBlob) {
-      const request = indexedDB.open(dbName);
-      request.onsuccess = (event) => {
-        const db = event.target.result;
-        const transaction = db.transaction([storeName], "readwrite");
-        const store = transaction.objectStore(storeName);
-        store.put(audioBlob, key);
-      };
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(dbName);
+        request.onsuccess = (event) => {
+          const db = event.target.result;
+          const transaction = db.transaction([storeName], "readwrite");
+          const store = transaction.objectStore(storeName);
+          const putRequest = store.put(audioBlob, key);
+          putRequest.onsuccess = () => resolve();
+          putRequest.onerror = () => reject(putRequest.error);
+        };
+        request.onerror = () => reject(request.error);
+      });
     }
     
 </script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<style>
-    .cell-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 8px;
-        padding: 4px;
-    }
-    .play-icon {
-        color: #666;
-        cursor: pointer;
-        transition: color 0.2s;
-    }
-    .play-icon:hover {
-        color: #333;
-    }
-</style>
-
-<h1>Test text to speech on load</h1>
-<!-- POST to /text-to-speech on load for testing-->
-<button onclick="playAudioFromCache('hello')">Play English Hello</button>
-
-<script>
-    // Direct POST to /text-to-speech endpoint on load
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch('/text-to-speech', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                text: 'hello',
-                language: 'english'
-            })
-        })
-        .then(response => response.blob())
-        .then(audioBlob => {
-            saveAudioToIndexedDB('hello', audioBlob);
-            console.log('audioBlob created');
-            //const audioUrl = URL.createObjectURL(audioBlob);
-            //new Audio(audioUrl).play();
-        });
-    });
-</script>
 
 <h1>Translations</h1>
 {% if not rows %}
@@ -110,7 +108,7 @@
         <td>
             <div class="cell-content">
                 <span>{{ cell.phrase }}</span>
-                <i class="fas fa-play play-icon"></i>
+                <i onclick="playAudioFromCache('{{ cell.phrase }}')" class="fas fa-play play-icon"></i>
             </div>
         </td>
         {% endfor %}
