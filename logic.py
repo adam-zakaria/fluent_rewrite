@@ -6,9 +6,13 @@ import json
 from utils import utils
 import zipfile
 from io import BytesIO
+import model
+
 load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 openai_api_key = os.environ.get("OPENAI_API_KEY")
 client = openai.OpenAI(api_key=openai_api_key)
+
+table = model.TranslationTable()
 
 def create_audio_zip():
     # Create zip file in memory
@@ -71,23 +75,26 @@ def text_to_speech(text, language):
         print(f'Error: {e}')
         return None
 
-def create_table_data(input_text):
+def create_translation_table(input_text):
     english_phrases = input_text.splitlines()
     languages = ['spanish', 'french', 'japanese']
-    translations_table = []
+    
+    # Clear existing table data
+    table.clear_table()
+    table.add_language('english')
+    # rows = [] # this probably isn't needed because the rows can just be appended in the loop
 
-    # Create translation
-    # (0) For each english phrase
+    # Create a TranslationRow for each english phrase where (len(TranslationRow) == len(languages))
+    # Append the row to the table
     for english_phrase in english_phrases:
-        # (1) Create a new row of translations
-        row_of_translations = []
+        row = []
         for language in languages:
+            table.add_language(language)
             user_message = {
                 'phrase': english_phrase,
                 'language': language
             }
 
-            # (2) For each language, get the translation
             output = client.chat.completions.create(
                 model="gpt-4o-2024-11-20",
                 messages=[
@@ -96,33 +103,21 @@ def create_table_data(input_text):
                 ],
             )
             translation = output.choices[0].message.content
-            print(translation)
-            # (3) Add the translation to the row of translations
-            #row_of_translations.append(translation)
-            row_of_translations.append({
-                'language': language,
-                'phrase': translation,
-                'audio_path': f'path/to/audio/.mp3',
-                'video_path': f'path/to/audio/.mp4',
-            })
-        #print(row_of_translations)
-        # (4) Add the row of translations to the translations_table
-        translations_table.append(row_of_translations)
+            row.append(model.TranslationCell(language, translation))
 
-    # Make the first column the english phrases
-    for i in range(len(translations_table)):
-        translations_table[i].insert(0, { # Insert phrase in first position of translation row
-            'language': 'english',
-            'phrase': english_phrases[i] 
-        })
+        # Prepend the english phrase to the row
+        row.insert(0, model.TranslationCell('english', english_phrase))
+        table.add_translation_row(row)
 
     # Create audio
-    for row in translations_table:
+    for row in table.rows:
         for cell in row:
-            cell['audio_key'] = text_to_speech(cell['phrase'], cell['language'])
+            #cell['audio_key'] = text_to_speech(cell['phrase'], cell['language'])
+            cell.audio_key = text_to_speech(cell.phrase, cell.language)
 
-    # Add english as the header of the first column
-    languages.insert(0, 'english')
-        
-    print(f'languages: {languages}')
-    return translations_table, languages
+    # Debug print
+    for row in table.rows:
+        for cell in row:
+            print(cell)
+
+    return table

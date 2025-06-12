@@ -23,30 +23,39 @@ Session(app)
 
 @app.route('/')
 def input():
+    """
+    Returns the input view
+    """
     # Get saved input from session, or empty string if none exists
     saved_input = session.get('input_text', '')
     return render_template('input.html', saved_input=saved_input)
 
 @app.route('/table', methods=['GET', 'POST'])
 def table():
+    """
+    Returns the table view
+    Basically just calls logic.create_translation_table with the input text (the phrases to translate)
+    """
     if request.method == 'POST':
         # If POST, process the new translation
         input_text = request.form.get('input_text', '')
-        translations, languages = logic.create_table_data(input_text)
+        table = logic.create_translation_table(input_text)
         # Update session with new data
-        session['translations'] = translations
-        session['languages'] = languages
+        session['translations'] = table.rows
+        session['languages'] = table.languages
         session['input_text'] = input_text
     else:
         # If GET, load from session
         translations = session.get('translations', [])
         languages = session.get('languages', ['english'])
     
-    return render_template('table.html', languages=languages, rows=translations)
+    return render_template('table.html', languages=table.languages, rows=table.rows)
 
-
-@app.route('/audio', methods=['GET'])
+@app.route('/api/audio', methods=['GET'])
 def audio():
+    """
+    Returns a zip of all the audio files where the filename is the <phrase>.mp3
+    """
     return send_file(logic.create_audio_zip(), mimetype='application/zip')
 
 """

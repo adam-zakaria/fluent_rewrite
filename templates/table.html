@@ -23,7 +23,7 @@
     };
 
     // Fetch audio zip from server
-    fetch(`${API_HOST}/audio`)
+    fetch(`${API_HOST}/api/audio`)
       .then(response => response.blob())
       .then(async zipBlob => {
         //debugger;
