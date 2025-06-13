@@ -60,7 +60,6 @@ class TranslationTable:
         """
         Updates a translation row with new data
         """
-        breakpoint()
         self.rows[row_number] = [TranslationCell(language, phrase) for language, phrase in zip(self.languages, phrases)]
         session['rows'] = self.rows
         """

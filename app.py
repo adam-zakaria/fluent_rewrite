@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, send_file, jsonify
+from flask import Flask, render_template, request, session, send_file, jsonify, redirect, url_for
 from flask_session import Session  # Add Flask-Session
 from dotenv import load_dotenv
 import os
@@ -42,17 +42,15 @@ def table():
     Basically just calls logic.create_translation_table with the input text (the phrases to translate)
     """
     if request.method == 'POST':
-        # If POST, render from new translations
+        # From /input - Translate and update session, then render
         input_text = request.form.get('input_text', '')
         table = logic.create_translation_table(input_text)
-        # Update session with new data
         session['rows'] = table.rows
         session['languages'] = table.languages
         session['input_text'] = input_text
-        return render_template('table.html', languages=table.languages, rows=table.rows)
-    else:
-        # If GET, render from session
-        return render_template('table.html', languages=session['languages'], rows=session['rows'])
+
+    # From anywhere else, just render from session
+    return render_template('table.html', languages=session['languages'], rows=session['rows'])
 
 @app.route('/edit_row/<int:row_number>', methods=['GET'])
 def edit_row(row_number):
@@ -75,20 +73,15 @@ def edit_row_db(row_number):
     Updates a translation row and returns the updated table view
     """
     print(request.form)
-    #breakpoint()
 
     table = logic.table
-    #table.rows = session['rows']
-    #table.languages = session['languages']
-    
-    #updated_row = table.update_translation_row(row_number, [phrase for phrase in request.form.values()])
     row_updated = table.update_translation_row(row_number, [phrase for phrase in request.form.values()])
 
     if row_updated:
         session['rows'] = table.rows
         session['languages'] = table.languages
     
-    return render_template('table.html', languages=session['languages'], rows=session['rows'])
+    return redirect(url_for('table'))
 
 """
 @app.route('/text_to_speech', methods=['POST'])
