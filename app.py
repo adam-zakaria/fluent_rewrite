@@ -40,7 +40,7 @@ def table():
         input_text = request.form.get('input_text', '')
         table = logic.create_translation_table(input_text)
         # Update session with new data
-        session['translations'] = table.rows
+        session['rows'] = table.rows
         session['languages'] = table.languages
         session['input_text'] = input_text
     else:
@@ -55,8 +55,8 @@ def edit_row(row_number):
     """
     Returns the edit view for a row
     """
-    row = session['translations'][row_number]
-    return render_template('edit.html', row=row)
+    row = session['rows'][row_number]
+    return render_template('edit.html', row=row, row_number=row_number)
 
 @app.route('/api/audio', methods=['GET'])
 def audio():
@@ -65,14 +65,20 @@ def audio():
     """
     return send_file(logic.create_audio_zip(), mimetype='application/zip')
 
-@app.route('/api/edit_row/<int:row_number>', methods=['GET'])
+@app.route('/api/edit_row/<int:row_number>', methods=['POST'])
 def edit_row_db(row_number):
     """
-    Returns the edit view for a row
+    Updates a translation row and returns the updated table view
     """
-    row = session['translations'][row_number]
-    return render_template('edit.html', row=row)
-    #return render_template('edit.html', row_number=row_number)
+    table.rows = session['rows']
+    table.languages = session['languages']
+    
+    updated_row = table.update_translation_row(row_number, request.form)
+    if updated_row:
+        session['rows'] = table.rows
+        session['languages'] = table.languages
+    
+    return render_template('table.html', languages=session['languages'], rows=session['rows'])
 
 """
 @app.route('/text_to_speech', methods=['POST'])

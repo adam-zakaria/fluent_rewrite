@@ -121,3 +121,13 @@ def create_translation_table(input_text):
             print(cell)
 
     return table
+
+def update_translation_row(row_number, form_data):
+    """
+    Updates a translation row in both the session and database
+    """
+    # Update the session with the new data
+    session['rows'][row_number] = form_data
+    # Update the database with the new data
+    # TODO: Implement database update when database is added
+    return session['rows'][row_number]

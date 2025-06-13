@@ -54,6 +54,21 @@ class TranslationTable:
     def clear_table(self):
         self.rows = []
 
+    def update_translation_row(self, row_number, form_data):
+        """
+        Updates a translation row with new data
+        """
+        if 0 <= row_number < len(self.rows):
+            # Convert form data to TranslationCell objects
+            updated_cells = []
+            for i, (language, phrase) in enumerate(zip(self.languages, form_data.getlist('translations[]'))):
+                cell = self.rows[row_number][i]
+                cell.phrase = phrase
+                updated_cells.append(cell)
+            self.rows[row_number] = updated_cells
+            return self.rows[row_number]
+        return None
+
     #@property
     def rows(self):
         return self.rows

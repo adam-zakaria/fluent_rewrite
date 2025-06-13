@@ -26,8 +26,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <h1>Edit Row</h1>
-<form action="/api/translations/{{ row_number }}" method="POST">
-  <input type="hidden" name="_method" value="PATCH">
+<form action="/api/edit_row/{{ row_number }}" method="POST">
   <table>
     <tr>
     {% for cell in row %}
