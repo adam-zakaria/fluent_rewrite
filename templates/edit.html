@@ -35,7 +35,7 @@
     </tr>
     <tr>
     {% for cell in row %}
-        <td><input name="translations[]" value="{{ cell.phrase }}"></td>
+        <td><input name="{{ cell.phrase }}" value="{{ cell.phrase }}"></td>
     {% endfor %}
     </tr>
   </table>

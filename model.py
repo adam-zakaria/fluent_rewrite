@@ -1,3 +1,5 @@
+from flask import session
+
 class TranslationCell:
     def __init__(self, language, phrase, audio_path='', video_path='', audio_key=None):
         self.language = language
@@ -54,20 +56,22 @@ class TranslationTable:
     def clear_table(self):
         self.rows = []
 
-    def update_translation_row(self, row_number, form_data):
+    def update_translation_row(self, row_number, phrases):
         """
         Updates a translation row with new data
         """
-        if 0 <= row_number < len(self.rows):
-            # Convert form data to TranslationCell objects
-            updated_cells = []
-            for i, (language, phrase) in enumerate(zip(self.languages, form_data.getlist('translations[]'))):
-                cell = self.rows[row_number][i]
-                cell.phrase = phrase
-                updated_cells.append(cell)
-            self.rows[row_number] = updated_cells
-            return self.rows[row_number]
-        return None
+        breakpoint()
+        self.rows[row_number] = [TranslationCell(language, phrase) for language, phrase in zip(self.languages, phrases)]
+        session['rows'] = self.rows
+        """
+        updated_cells = []
+        for i, (language, phrase) in enumerate(zip(self.languages, phrases)):
+            cell = self.rows[row_number][i]
+            cell.phrase = phrase
+            updated_cells.append(cell)
+        self.rows[row_number] = updated_cells
+        return self.rows[row_number]
+        """
 
     #@property
     def rows(self):

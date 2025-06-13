@@ -20,6 +20,12 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_FILE_DIR'] = 'flask_session'  # Directory to store session files
 Session(app)
 
+@app.before_request
+def set_session_defaults():
+    session.setdefault('languages', [])
+    session.setdefault('rows', [])
+    session.setdefault('input_text', '')
+
 @app.route('/')
 def input():
     """
@@ -36,19 +42,17 @@ def table():
     Basically just calls logic.create_translation_table with the input text (the phrases to translate)
     """
     if request.method == 'POST':
-        # If POST, process the new translation
+        # If POST, render from new translations
         input_text = request.form.get('input_text', '')
         table = logic.create_translation_table(input_text)
         # Update session with new data
         session['rows'] = table.rows
         session['languages'] = table.languages
         session['input_text'] = input_text
+        return render_template('table.html', languages=table.languages, rows=table.rows)
     else:
-        # If GET, load from session
-        translations = session.get('translations', [])
-        languages = session.get('languages', ['english'])
-    
-    return render_template('table.html', languages=table.languages, rows=table.rows)
+        # If GET, render from session
+        return render_template('table.html', languages=session['languages'], rows=session['rows'])
 
 @app.route('/edit_row/<int:row_number>', methods=['GET'])
 def edit_row(row_number):
@@ -70,11 +74,17 @@ def edit_row_db(row_number):
     """
     Updates a translation row and returns the updated table view
     """
-    table.rows = session['rows']
-    table.languages = session['languages']
+    print(request.form)
+    #breakpoint()
+
+    table = logic.table
+    #table.rows = session['rows']
+    #table.languages = session['languages']
     
-    updated_row = table.update_translation_row(row_number, request.form)
-    if updated_row:
+    #updated_row = table.update_translation_row(row_number, [phrase for phrase in request.form.values()])
+    row_updated = table.update_translation_row(row_number, [phrase for phrase in request.form.values()])
+
+    if row_updated:
         session['rows'] = table.rows
         session['languages'] = table.languages
     
