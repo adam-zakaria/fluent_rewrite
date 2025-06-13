@@ -36,7 +36,6 @@
           // Use filename without .mp3 as the key
           const key = filename.replace('.mp3', '');
           await saveAudioToIndexedDB(key, audioBlob);
-          console.log('Saved audio:', key);
         }
       })
       .catch(error => console.error('Error loading audio:', error));
@@ -89,6 +88,17 @@
       });
     }
     
+    function editRow(rowNumber) {
+      console.log('editRow for row:', rowNumber);
+      // Add fetch GET request to update the row
+      fetch(`${API_HOST}/api/translations/${rowNumber}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+    }
+
 </script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -101,6 +111,7 @@
         {% for lang in languages %}
         <th>{{ lang }}</th>
         {% endfor %}
+        <th>Edit</th>
     </tr>
     {% for row in rows %}
     <tr>
@@ -112,6 +123,11 @@
             </div>
         </td>
         {% endfor %}
+        <td>
+          <button>
+          <a href="/edit/{{ loop.index0 }}" class="modal-trigger">Edit</a>
+          </button>
+        </td>
     </tr>
     {% endfor %}
 </table>

@@ -20,7 +20,6 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_FILE_DIR'] = 'flask_session'  # Directory to store session files
 Session(app)
 
-
 @app.route('/')
 def input():
     """
@@ -51,12 +50,29 @@ def table():
     
     return render_template('table.html', languages=table.languages, rows=table.rows)
 
+@app.route('/edit_row/<int:row_number>', methods=['GET'])
+def edit_row(row_number):
+    """
+    Returns the edit view for a row
+    """
+    row = session['translations'][row_number]
+    return render_template('edit.html', row=row)
+
 @app.route('/api/audio', methods=['GET'])
 def audio():
     """
     Returns a zip of all the audio files where the filename is the <phrase>.mp3
     """
     return send_file(logic.create_audio_zip(), mimetype='application/zip')
+
+@app.route('/api/edit_row/<int:row_number>', methods=['GET'])
+def edit_row_db(row_number):
+    """
+    Returns the edit view for a row
+    """
+    row = session['translations'][row_number]
+    return render_template('edit.html', row=row)
+    #return render_template('edit.html', row_number=row_number)
 
 """
 @app.route('/text_to_speech', methods=['POST'])
