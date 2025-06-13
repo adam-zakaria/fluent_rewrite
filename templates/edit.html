@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+    const API_HOST = 'http://localhost:3000';
+
+    // Add IndexedDB setup
+    const dbName = "audioCache";
+    const dbVersion = 1;
+    const storeName = "audioFiles";
+
+    // Open/create the database
+    const dbRequest = indexedDB.open(dbName, dbVersion);
+
+    dbRequest.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains(storeName)) {
+        db.createObjectStore(storeName);
+      }
+    };
+
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<h1>Edit Row</h1>
+<form action="/api/translations/{{ row_number }}" method="POST">
+  <input type="hidden" name="_method" value="PATCH">
+  <table>
+    <tr>
+    {% for cell in row %}
+        <th>{{ cell.language }}</th>
+    {% endfor %}
+    </tr>
+    <tr>
+    {% for cell in row %}
+        <td><input name="translations[]" value="{{ cell.phrase }}"></td>
+    {% endfor %}
+    </tr>
+  </table>
+  <button type="submit">Submit</button>
+</form>
+{% endblock %} 
