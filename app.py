@@ -23,7 +23,6 @@ Session(app)
 
 @app.before_request
 def set_session_defaults():
-    #session.setdefault('table', model.TranslationTable())
     session.setdefault('table', None)
     session.setdefault('input_text', '')
 
