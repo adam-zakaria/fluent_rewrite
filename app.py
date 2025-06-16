@@ -5,7 +5,7 @@ import os
 import json
 from datetime import timedelta
 import logic 
-
+import model
 app = Flask(__name__,
             static_url_path='',
             static_folder='static',
@@ -22,8 +22,8 @@ Session(app)
 
 @app.before_request
 def set_session_defaults():
-    session.setdefault('languages', [])
-    session.setdefault('rows', [])
+    #session.setdefault('table', model.TranslationTable())
+    session.setdefault('table', None)
     session.setdefault('input_text', '')
 
 @app.route('/')
@@ -44,13 +44,11 @@ def table():
     if request.method == 'POST':
         # From /input - Translate and update session, then render
         input_text = request.form.get('input_text', '')
-        table = logic.create_translation_table(input_text)
-        session['rows'] = table.rows
-        session['languages'] = table.languages
+        session['table'] = model.create_translation_table(input_text)
         session['input_text'] = input_text
 
     # From anywhere else, just render from session
-    return render_template('table.html', languages=session['languages'], rows=session['rows'])
+    return render_template('table.html', languages=table.languages, rows=table.rows)
 
 @app.route('/edit_row/<int:row_number>', methods=['GET'])
 def edit_row(row_number):
