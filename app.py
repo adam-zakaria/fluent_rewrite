@@ -42,10 +42,15 @@ def table():
     Returns the table view
     Basically just calls logic.create_translation_table with the input text (the phrases to translate)
     """
+
     if request.method == 'POST':
         # From /input - Translate and update session, then render
         input_text = request.form.get('input_text', '')
-        session['table'] = model.TranslationTable(input_text)
+        # If table doesn't exist, create it, otherwise update it
+        if session['table'] is None:
+            session['table'] = model.TranslationTable(input_text)
+        else:
+            session['table'].update_table(input_text)
         session['input_text'] = input_text
 
     # From anywhere else, just render from session

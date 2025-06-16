@@ -42,19 +42,30 @@ class TranslationTable:
         self.rows = []
         self.languages = []
         if input_text:
-            self.create_translation_table(input_text)
+            self.generate_table(input_text)
     
     def __str__(self):
         return '\n'.join(str(row) for row in self.rows)
 
-    def create_translation_table(self, input_text):
+    def update_table(self, input_text):
+        """
+        Updates the table with new input text
+        Exact same as generate_table, but more semantic naming
+        """
+        self.generate_table(input_text)
+
+    def generate_table(self, input_text):
         english_phrases = input_text.splitlines()
         languages = ['spanish', 'french', 'japanese']
+
+        # Filter out existing english phrases
+        existing_english_phrases = [row[0].phrase for row in self.rows]
+        english_phrases = [phrase for phrase in english_phrases if phrase not in existing_english_phrases]
         
         # Add languages
+        self.add_language('english')
         for language in languages:
             self.add_language(language)
-        self.add_language('english')
         
         # Translate phrases
         for english_phrase in english_phrases:
@@ -123,8 +134,3 @@ class TranslationTable:
         for row in self.rows:
             for cell in row:
                 cell.audio_key = helpers.text_to_speech(cell.phrase, cell.language)
-
-        # Debug print
-        for row in self.rows:
-            for cell in row:
-                print(cell)

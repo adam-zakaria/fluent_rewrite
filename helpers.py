@@ -12,6 +12,7 @@ openai_api_key = os.environ.get("OPENAI_API_KEY")
 client = openai.OpenAI(api_key=openai_api_key)
 
 def translate_phrase(phrase, language):
+    print(f'Translating phrase: {phrase} to {language}')
     user_message = {
         'phrase': phrase,
         'language': language
