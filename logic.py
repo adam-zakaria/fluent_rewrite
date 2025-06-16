@@ -81,7 +81,7 @@ def create_translation_table(input_text):
     languages = ['spanish', 'french', 'japanese']
     
     # Clear existing table data
-    table.clear_table()
+    # table.clear_table()
     table.add_language('english')
     # rows = [] # this probably isn't needed because the rows can just be appended in the loop
 

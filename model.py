@@ -11,21 +11,15 @@ class TranslationCell:
     def __str__(self):
         return self.phrase
 
-class TranslationRow:
+class TranslationRow(list):
     def __init__(self):
-        self.cells = [] # list of TranslationCell objects
+        super().__init__()
 
     def __str__(self):
-        return '[' + ', '.join(str(cell) for cell in self.cells) + ']'
-
-    def __iter__(self):
-        return iter(self.cells)
-
-    def append(self, cell):
-        self.cells.append(cell)
+        return '[' + ', '.join(str(cell) for cell in self) + ']'
 
     def prepend(self, cell):
-        self.cells.insert(0, cell)
+        self.insert(0, cell)
 
     def to_dict(self):
         return {

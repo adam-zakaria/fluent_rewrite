@@ -83,6 +83,13 @@ def edit_row_db(row_number):
     
     return redirect(url_for('table'))
 
+@app.route('/api/clear_data', methods=['POST'])
+def clear_data():
+    """
+    Clears the data from the session
+    """
+    session.clear()
+    return redirect(url_for('input'))
 """
 @app.route('/text_to_speech', methods=['POST'])
 def tts():
