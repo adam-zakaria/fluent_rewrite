@@ -45,18 +45,18 @@ def table():
     if request.method == 'POST':
         # From /input - Translate and update session, then render
         input_text = request.form.get('input_text', '')
-        session['table'] = model.create_translation_table(input_text)
+        session['table'] = model.TranslationTable(input_text)
         session['input_text'] = input_text
 
     # From anywhere else, just render from session
-    return render_template('table.html', languages=table.languages, rows=table.rows)
+    return render_template('table.html', languages=session['table'].languages, rows=session['table'].rows)
 
 @app.route('/edit_row/<int:row_number>', methods=['GET'])
 def edit_row(row_number):
     """
     Returns the edit view for a row
     """
-    row = session['rows'][row_number]
+    row = session['table'].rows[row_number]
     return render_template('edit.html', row=row, row_number=row_number)
 
 @app.route('/api/audio', methods=['GET'])
@@ -71,15 +71,9 @@ def edit_row_db(row_number):
     """
     Updates a translation row and returns the updated table view
     """
-    print(request.form)
-
     table = session['table']
     row_updated = table.update_translation_row(row_number, [phrase for phrase in request.form.values()])
 
-    if row_updated:
-        session['rows'] = table.rows
-        session['languages'] = table.languages
-    
     return redirect(url_for('table'))
 
 @app.route('/api/clear_data', methods=['POST'])
