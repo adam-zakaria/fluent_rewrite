@@ -4,8 +4,9 @@ from dotenv import load_dotenv
 import os
 import json
 from datetime import timedelta
-import logic 
 import model
+import helpers
+
 app = Flask(__name__,
             static_url_path='',
             static_folder='static',
@@ -63,7 +64,7 @@ def audio():
     """
     Returns a zip of all the audio files where the filename is the <phrase>.mp3
     """
-    return send_file(logic.create_audio_zip(), mimetype='application/zip')
+    return send_file(helpers.create_audio_zip(), mimetype='application/zip')
 
 @app.route('/api/edit_row/<int:row_number>', methods=['POST'])
 def edit_row_db(row_number):
@@ -72,7 +73,7 @@ def edit_row_db(row_number):
     """
     print(request.form)
 
-    table = logic.table
+    table = session['table']
     row_updated = table.update_translation_row(row_number, [phrase for phrase in request.form.values()])
 
     if row_updated:
@@ -88,15 +89,6 @@ def clear_data():
     """
     session.clear()
     return redirect(url_for('input'))
-"""
-@app.route('/text_to_speech', methods=['POST'])
-def tts():
-    text = 'hello'
-    language = 'english'
-    file_path, file_name = logic.text_to_speech(text, language)
-    print(f'file_path: {file_path}, file_name: {file_name}')
-    return send_file(file_path, mimetype='audio/mpeg', as_attachment=True, download_name=file_name)
-"""
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=3000)
