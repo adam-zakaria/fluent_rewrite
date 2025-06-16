@@ -12,11 +12,20 @@ class TranslationCell:
         return self.phrase
 
 class TranslationRow:
-    def __init__(self, cells):
-        self.cells = cells
+    def __init__(self):
+        self.cells = [] # list of TranslationCell objects
 
     def __str__(self):
         return '[' + ', '.join(str(cell) for cell in self.cells) + ']'
+
+    def __iter__(self):
+        return iter(self.cells)
+
+    def append(self, cell):
+        self.cells.append(cell)
+
+    def prepend(self, cell):
+        self.cells.insert(0, cell)
 
     def to_dict(self):
         return {

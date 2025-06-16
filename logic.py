@@ -1,3 +1,4 @@
+from flask import session
 from google.cloud import texttospeech
 import os
 import openai
@@ -84,10 +85,15 @@ def create_translation_table(input_text):
     table.add_language('english')
     # rows = [] # this probably isn't needed because the rows can just be appended in the loop
 
+    # Get existing translations from session
+    existing_english_phrases = [row[0].phrase for row in session['rows']]
+    # Filter out existing english phrases
+    english_phrases = [phrase for phrase in english_phrases if phrase not in existing_english_phrases]
+
     # Create a TranslationRow for each english phrase where (len(TranslationRow) == len(languages))
     # Append the row to the table
     for english_phrase in english_phrases:
-        row = []
+        row = model.TranslationRow()
         for language in languages:
             table.add_language(language)
             user_message = {
@@ -106,7 +112,7 @@ def create_translation_table(input_text):
             row.append(model.TranslationCell(language, translation))
 
         # Prepend the english phrase to the row
-        row.insert(0, model.TranslationCell('english', english_phrase))
+        row.prepend(model.TranslationCell('english', english_phrase))
         table.add_translation_row(row)
 
     # Create audio
