@@ -4,9 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+flask = "*"
 openai = "*"
-dotenv = "*"
+python-dotenv = "*"
+google-cloud-texttospeech = "*"
 ipdb = "*"
+flask-session = "*"
+utils = "*"
 
 [dev-packages]
 

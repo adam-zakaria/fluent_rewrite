@@ -4,7 +4,7 @@ import json
 from dotenv import load_dotenv
 from io import BytesIO
 import zipfile
-from utils import utils
+import utils
 from google.cloud import texttospeech
 
 load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))

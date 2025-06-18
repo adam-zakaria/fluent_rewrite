@@ -6,20 +6,26 @@ import json
 from datetime import timedelta
 import model
 import helpers
+from config import Config
 
 app = Flask(__name__,
             static_url_path='',
             static_folder='static',
             template_folder='templates')
 # Session configuration
-app.secret_key = 'dev'  # Change this to a real secret key in production
-app.config['DEBUG'] = True
+app.secret_key = Config.SECRET_KEY
+app.config['DEBUG'] = Config.DEBUG
 app.config['SESSION_PERMANENT'] = True
 app.permanent_session_lifetime = timedelta(days=30)
 # Configure Flask-Session
-app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SESSION_FILE_DIR'] = 'flask_session'  # Directory to store session files
+app.config['SESSION_TYPE'] = Config.SESSION_TYPE
+app.config['SESSION_FILE_DIR'] = Config.SESSION_FILE_DIR
 Session(app)
+
+@app.context_processor
+def inject_api_host():
+    """Inject API_HOST into all templates"""
+    return dict(api_host=Config.get_api_host(request))
 
 @app.before_request
 def set_session_defaults():
@@ -89,4 +95,4 @@ def clear_data():
     return redirect(url_for('input'))
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=3000)
+    app.run(debug=Config.DEBUG, host=Config.HOST, port=Config.PORT)
