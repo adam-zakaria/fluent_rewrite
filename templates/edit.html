@@ -5,8 +5,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
-    const API_HOST = '{{ api_host }}';
-
     // Add IndexedDB setup
     const dbName = "audioCache";
     const dbVersion = 1;
@@ -26,7 +24,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <h1>Edit Row</h1>
-<form action="{{ url_for('edit_row_db', row_number=row_number) }}" method="POST">
+<form action="{{ api_host }}/api/edit_row/{{ row_number }}" method="POST">
   <table>
     <tr>
     {% for cell in row %}
