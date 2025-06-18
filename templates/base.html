@@ -11,10 +11,10 @@
     <h1>Fluent</h1>
     <nav>
         <ul>
-            <li><a href="/">Input</a></li>
-            <li><a href="/table">Table</a></li>
+            <li><a href="{{ api_host }}/">Input</a></li>
+            <li><a href="{{ api_host }}/table">Table</a></li>
             <li>
-                <form action="{{ url_for('clear_data') }}" method="POST" style="display: inline;">
+                <form action="{{ api_host }}/api/clear_data" method="POST" style="display: inline;">
                     <button type="submit" style="background: none; border: none; color: blue; text-decoration: underline; cursor: pointer; padding: 0; font: inherit;">Clear Data</button>
                 </form>
             </li>
