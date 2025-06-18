@@ -89,7 +89,6 @@ def edit_row_db(row_number):
     table = session['table']
     row_updated = table.update_translation_row(row_number, [phrase for phrase in request.form.values()])
 
-    #return redirect(url_for('table'))
     return redirect(url_for('table', _external=True))
 
 @app.route('/api/clear_data', methods=['POST'])
@@ -98,7 +97,7 @@ def clear_data():
     Clears the data from the session
     """
     session.clear()
-    return redirect(url_for('input'))
+    return redirect(url_for('input', _external=True))
 
 if __name__ == '__main__':
     app.run(debug=True, host=os.getenv('HOST'), port=os.getenv('PORT'))

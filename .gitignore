@@ -1,7 +1,7 @@
 .DS_Store
 google_key.json
 node_modules
-audio
+audio/*
 
 # Environment variables
 .env

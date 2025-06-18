@@ -50,7 +50,7 @@
           if (getRequest.result) {
             const audioUrl = URL.createObjectURL(getRequest.result);
             new Audio(audioUrl).play();
-          } else {
+          }/* else {
             // If not in cache, fetch from server
             const [text, language] = key.split('_');
             fetch(`{{ api_host }}/text_to_speech`, {
@@ -65,7 +65,7 @@
                 const audioUrl = URL.createObjectURL(audioBlob);
                 new Audio(audioUrl).play();
               });
-          }
+          }*/
         };
       };
     }
