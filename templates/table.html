@@ -53,7 +53,7 @@
           } else {
             // If not in cache, fetch from server
             const [text, language] = key.split('_');
-            fetch(`${API_HOST}/text_to_speech`, {
+            fetch(`{{ api_host }}/text_to_speech`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ text, language })

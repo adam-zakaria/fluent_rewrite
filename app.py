@@ -7,6 +7,7 @@ from datetime import timedelta
 import model
 import helpers
 
+load_dotenv()
 app = Flask(__name__,
             static_url_path='',
             static_folder='static',
@@ -19,6 +20,8 @@ app.permanent_session_lifetime = timedelta(days=30)
 # Configure Flask-Session
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_FILE_DIR'] = 'flask_session'  # Directory to store session files
+app.config['SERVER_NAME'] = 'fluent.monster'
+
 Session(app)
 
 @app.context_processor
@@ -86,7 +89,8 @@ def edit_row_db(row_number):
     table = session['table']
     row_updated = table.update_translation_row(row_number, [phrase for phrase in request.form.values()])
 
-    return redirect(url_for('table'))
+    #return redirect(url_for('table'))
+    return redirect(url_for('table', _external=True))
 
 @app.route('/api/clear_data', methods=['POST'])
 def clear_data():
@@ -97,4 +101,4 @@ def clear_data():
     return redirect(url_for('input'))
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=3000)
+    app.run(debug=True, host=os.getenv('HOST'), port=os.getenv('PORT'))
