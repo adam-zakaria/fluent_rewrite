@@ -11,6 +11,12 @@ html, body{
     background-color: var(--light-sand);
 }
 
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 h1 {
     color: var(--ecru);
     margin-bottom: 20px;
@@ -104,4 +110,28 @@ input[type="submit"] {
 
 input[type="submit"]:hover {
     background-color: var(--shamrock-green);
+}
+
+.login-form {
+    display: flex;
+    gap: .5rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-form {
+    display: flex;
+    gap: .5rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.register-form {
+    display: flex;
+    gap: .5rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }

@@ -8,7 +8,14 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   </head>
   <body>
-    <h1>Fluent</h1>
+    <div class="header">
+      <h1>Fluent</h1>
+      <!-- flex and put login and register in the right side-->
+      <div class="login-register">
+        <a href="{{ api_host }}/login">Login</a> 
+        <a href="{{ api_host }}/register">Register</a>
+      </div>
+    </div>
     <nav>
         <ul>
             <li><a href="{{ api_host }}/">Input</a></li>

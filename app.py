@@ -74,6 +74,20 @@ def edit_row(row_number):
     row = session['table'].rows[row_number]
     return render_template('edit.html', row=row, row_number=row_number)
 
+@app.route('/login', methods=['GET'])
+def login():
+    """
+    Returns the login view
+    """
+    return render_template('login.html')
+
+@app.route('/register', methods=['GET'])
+def register():
+    """
+    Returns the register view
+    """
+    return render_template('register.html')
+
 @app.route('/api/audio', methods=['GET'])
 def audio():
     """
