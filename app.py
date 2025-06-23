@@ -95,6 +95,13 @@ def audio():
     """
     return send_file(helpers.create_audio_zip(), mimetype='application/zip')
 
+@app.route('/api/audio_file/<filename>', methods=['GET'])
+def send_audio_file(filename):
+    """
+    Sends an audio file to the client
+    """
+    return send_file(f'audio/{filename}', mimetype='audio/mpeg')
+
 @app.route('/api/edit_row/<int:row_number>', methods=['POST'])
 def edit_row_db(row_number):
     """

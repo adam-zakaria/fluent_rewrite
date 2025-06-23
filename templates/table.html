@@ -20,25 +20,31 @@
       }
     };
 
-    // Fetch audio zip from server
-    fetch(`{{ api_host }}/api/audio`)
-      .then(response => response.blob())
-      .then(async zipBlob => {
-        //debugger;
-        const zip = await JSZip.loadAsync(zipBlob);
-        console.log('Zip loaded, files:', Object.keys(zip.files));
-        
-        // Process each file in the zip
-        for (const [filename, file] of Object.entries(zip.files)) {
-          const audioBlob = await file.async('blob');
-          // Use filename without .mp3 as the key
-          const key = filename.replace('.mp3', '');
-          await saveAudioToIndexedDB(key, audioBlob);
-        }
-      })
-      .catch(error => console.error('Error loading audio:', error));
+function playAudioBlobWithWebAudio(blob) {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const reader = new FileReader();
+  reader.onload = () => {
+    ctx.decodeAudioData(reader.result, (buffer) => {
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      source.start(); // plays exactly from 0.000s, no fade
+    });
+  };
+  reader.readAsArrayBuffer(blob);
+}
 
-    function playAudioFromCache(key) {
+    function saveAudioAndPlay(phrase) {
+      fetch(`{{ api_host }}/api/audio_file/${phrase}.mp3`)
+        .then(response => response.blob())
+        .then(async file => {
+          playAudioBlobWithWebAudio(file);
+          saveAudioToBrowserDB(phrase, file);
+          //playAudioFromBrowserDB(phrase);
+      })
+    }
+
+    function playAudioFromBrowserDB(key) {
       const request = indexedDB.open(dbName);
       request.onsuccess = (event) => {
         const db = event.target.result;
@@ -49,29 +55,17 @@
         getRequest.onsuccess = () => {
           if (getRequest.result) {
             const audioUrl = URL.createObjectURL(getRequest.result);
-            new Audio(audioUrl).play();
-          }/* else {
-            // If not in cache, fetch from server
-            const [text, language] = key.split('_');
-            fetch(`{{ api_host }}/text_to_speech`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ text, language })
-            })
-              .then(response => response.blob())
-              .then(audioBlob => {
-                console.log('Audio blob created:', key);
-                saveAudioToIndexedDB(key, audioBlob);
-                const audioUrl = URL.createObjectURL(audioBlob);
-                new Audio(audioUrl).play();
-              });
-          }*/
+            const audio = new Audio(audioUrl);
+            setTimeout(() => {  
+              audio.play();
+            }, 1000);
+          }
         };
       };
     }
 
     // Helper functions for IndexedDB operations
-    function saveAudioToIndexedDB(key, audioBlob) {
+    function saveAudioToBrowserDB(key, audioBlob) {
       return new Promise((resolve, reject) => {
         const request = indexedDB.open(dbName);
         request.onsuccess = (event) => {
@@ -117,7 +111,8 @@
         <td>
             <div class="cell-content">
                 <span>{{ cell.phrase }}</span>
-                <i onclick="playAudioFromCache('{{ cell.phrase }}')" class="fas fa-play play-icon"></i>
+                <i onclick="saveAudioAndPlay('{{ cell.phrase }}')" class="fas fa-play play-icon"></i>
+
             </div>
         </td>
         {% endfor %}
