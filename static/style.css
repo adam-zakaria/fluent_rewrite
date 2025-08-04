@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 :root {
     --indian-red: #c97064ff;
     --ecru: #bca371ff;
@@ -9,6 +13,7 @@
 
 html, body{
     background-color: var(--light-sand);
+    width: 100%;
 }
 
 .header {
@@ -19,7 +24,7 @@ html, body{
 
 h1 {
     color: var(--ecru);
-    margin-bottom: 20px;
+    margin-bottom: 6px;
 }
 
 
@@ -42,13 +47,13 @@ body {
     font-family: system-ui, -apple-system, sans-serif;
     max-width: 800px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 6px;
 }
 nav ul {
     list-style-type: none;
     display: flex;
     padding: 0;
-    margin-bottom: 30px;
+    margin-bottom: 6px;
 }
 
 nav li {
@@ -61,6 +66,11 @@ nav a {
 
 nav a:hover {
     text-decoration: underline;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
 }
 
 table {

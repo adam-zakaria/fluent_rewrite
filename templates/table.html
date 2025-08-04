@@ -56,9 +56,12 @@ function playAudioBlobWithWebAudio(blob) {
           if (getRequest.result) {
             const audioUrl = URL.createObjectURL(getRequest.result);
             const audio = new Audio(audioUrl);
+            audio.play();
+            /*
             setTimeout(() => {  
               audio.play();
             }, 1000);
+            */
           }
         };
       };
@@ -98,6 +101,7 @@ function playAudioBlobWithWebAudio(blob) {
 {% if not rows %}
 <p>No translations yet. <a href="/">Translate something!</a></p>
 {% else %}
+<div class="table-container">
 <table border="1">
     <tr>
         {% for lang in languages %}
@@ -124,5 +128,6 @@ function playAudioBlobWithWebAudio(blob) {
     </tr>
     {% endfor %}
 </table>
+</div>
 {% endif %}
 {% endblock %} 
