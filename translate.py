@@ -1,12 +1,19 @@
-from openai import OpenAI
+#from openai import OpenAI
+import openai
 import os
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
-load_dotenv()
 
 # Initialize the OpenAI client with the API key from environment variable
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+#client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
+openai_api_key = os.environ.get("OPENAI_API_KEY")
+client = openai.OpenAI(
+    api_key=openai_api_key,
+    project='proj_bJOY8R6vcA5tPkWgi9RS7xAN'
+)
+
 
 def translate_text(text, languages):
     """

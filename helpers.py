@@ -9,7 +9,10 @@ from google.cloud import texttospeech
 
 load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 openai_api_key = os.environ.get("OPENAI_API_KEY")
-client = openai.OpenAI(api_key=openai_api_key)
+client = openai.OpenAI(
+    api_key=openai_api_key,
+    project='proj_bJOY8R6vcA5tPkWgi9RS7xAN'
+)
 
 def translate_phrase(phrase, language):
     print(f'Translating phrase: {phrase} to {language}')
